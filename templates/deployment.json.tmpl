@@ -1,9 +1,9 @@
 /*
 
-reploy JSON deployment template
+wpkit JSON deployment template
 
 author: Todd Miller <todd@rainydaymedia.net>
-URL: https://github.com/Toddses/reploy
+URL: https://github.com/Toddses/wpkit
 
 This is your JSON deployment file! It contains all the information for each stage you intend to deploy to. Its neat.
 
@@ -15,7 +15,8 @@ You can, however, leave linkedFiles and linkedDirs as an empty array if you don'
 "stage_name": {
 	"host": "xxx.xxx.xxx.xxx",
 	"username": "you",
-	"path": "/path/to/your/project",
+    "privatePath": "/path/to/your/private/project",
+    "publicPath": "/path/to/your/public/project",
 	"branch": "master"
 }
 
@@ -29,7 +30,8 @@ You can, however, leave linkedFiles and linkedDirs as an empty array if you don'
 	"staging": {
 		"host": "xxx.xxx.xxx.xxx",
 		"username": "",
-		"path": "/path/to/your/project",
+        "privatePath": "/path/to/your/private/project",
+        "publicPath": "/path/to/your/public/project",
 		"branch": ""
 	}
 }

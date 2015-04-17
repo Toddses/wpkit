@@ -1,10 +1,10 @@
 {
-  "name": "reploy",
-  "version": "0.0.2",
-  "description": "Sophisticated release deployments in multi-server environments over SSH",
+  "name": "wpkit",
+  "version": "0.0.1",
+  "description": "Command line toolkit for managing and deploying WordPress installations over SSH in multi-server environments.",
   "main": "index.js",
   "bin": {
-    "reploy": "./bin/reploy.js"
+    "wpkit": "./bin/wpkit.js"
   },
   "files": [
     "index.js",
@@ -17,7 +17,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git@github.com:Toddses/reploy.git"
+    "url": "git@github.com:Toddses/wpkit.git"
   },
   "keywords": [
     "node",
@@ -25,14 +25,15 @@
     "deployment",
     "ssh",
     "git",
-    "releases"
+    "wordpress",
+    "toolkit"
   ],
   "author": "Todd Miller <todd@rainydaymedia.net>",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/Toddses/reploy/issues"
+    "url": "https://github.com/Toddses/wpkit/issues"
   },
-  "homepage": "https://github.com/Toddses/reploy",
+  "homepage": "https://github.com/Toddses/wpkit",
   "dependencies": {
     "async": "^0.9.0",
     "chalk": "^0.5.1",

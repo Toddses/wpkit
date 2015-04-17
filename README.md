@@ -1,8 +1,8 @@
-### reploy
+### wpkit
 
-Command line tool for [Capistrano](http://capistranorb.com/) style deployments in multi-server environments over SSH. And hey, its a NodeJS package!
+Sophisticated command line toolkit for managing and deploying WordPress installations over SSH in multi-server environments.
 
-Add any issues or feature requests to the [GitHub issues](https://github.com/Toddses/reploy/issues)!
+Add any issues or feature requests to the [GitHub issues](https://github.com/Toddses/wpkit/issues)!
 
 ## Installation
 
@@ -10,18 +10,18 @@ Install it with NPM. So cool!
 
 Install globally:
 
-	$ npm install -g reploy
+	$ npm install -g wpkit
 
 In your project's directory, run the initializer:
 
     $ cd /path/to/your/project
-	$ reploy init
+	$ wpkit init
 
-Edit the `reploy.json` file with your various settings and stages.
+Edit the `deployment.json` file with your various settings and stages.
 
 Deploy!
 
-	$ reploy deploy stage
+	$ wpkit deploy stage
 
 Where `stage` is the stage you'd like to deploy to.
 
@@ -29,57 +29,90 @@ Where `stage` is the stage you'd like to deploy to.
 
 Verbose logging.
 
-	$ reploy deploy stage --verbose
+	$ wpkit deploy stage --verbose
+
+## Deployment
+
+Deploy your project with git over SSH. Set
+
+```json
+"repository": "git@github.com:user/example.git"
+```
+
+to your git repository. You must enable agent forwarding. One way to handle this is in `~/.ssh/config`
+
+```
+Host 12.34.56.789
+    User you
+    AgentForward yes
+```
+
+On Linux machines, agent forwarding is usually enabled by default. On a Mac, you may have to enable it for each server you intend to deploy to.
+
+wpkit creates a release structure that keeps important and shared files out of your public facing directories. Each stage in the `deployment.json` manifest will have the following structure:
+
+```json
+"stage_name": {
+    "host": "xxx.xxx.xxx.xxx",
+    "username": "you",
+    "privatePath": "/path/to/your/private/project",
+    "publicPath": "/path/to/your/public/project",
+    "branch": "master"
+}
+```
+
+`/path/to/your/private/project` is not a public facing directory, while `/path/to/your/public/project` is the public facing website.
+
+```json
+"linkedDirs": ["wp-content/uploads"],
+"linkedFiles": ["wp-config.php", ".htaccess"]
+```
+
+The above is a basic WordPress symlink structure. These linkedFiles will live in your `privatePath` under `/shared`, and will not be directly accessible by your users.
+
+`wp-config.php` and `.htaccess` are nice to symlink because they will be the same for each release. So you can have these unchanged files that don't live in your repo, but the public site will still have access to them.
+
+`/wp-content/uploads` is nice to symlink as well. You won't need to copy over your site's uploads for each release, or store them in your repo. They will just symlink to the uploads in `/shared` and you're golden!
 
 ## Deployment Structure
 
 ```
-project_root
-├─ current
-├─ releases
-│  ├─ 20150215123456
-│  ├─ 20150216123456
-│  └─ 20150217123456
+/private/path/root
 ├─ repo
 │  └─ <VCS data>
 ├─ shared
 │  ├─ <symlinked files>
 │  └─ <symlinked dirs>
 └─ deployments.log
+
+/public/path/root
+├─ REVISION
+└─ *
 ```
 
-* **./current/** Symlinked dir to the latest release
-* **./releases/** Directory containing the various releases that have been deployed.
+#### Private Path
 * **./repo/** Contains the bare repo.
 * **./shared/** Contains shared files/directories to be symlinked within each release.
 * **./deployments.log** Log file containing data on each deployment.
 
-## Milestones
+#### Public Path
+* **./REVISION** Contains the revision number for this release.
+* **./*** Project files.
 
-This tool is in active development. Short list of planned releases:
+## Roadmap
 
-#### v0.1.0
+This toolkit is in active development. I intend to develop it into a full-stack WordPress management tool.
 
-* Add the rollback task for quickly returning to previous releases.
+Intended future releases will include the following functionality.
 
-#### v0.2.0
+* Scaffolding a new WordPress site with [YeoPress](https://github.com/wesleytodd/YeoPress).
+* Plugin stack installation. Define a set of common plugins to install and pull them all into your project with one command.
+* Database pushing and pulling for quick transfer of MySQL databases between local and remote servers. Will automatically update URLs in the data.
+* Uploads pushing and pulling for quick transfers of the WordPress uploads data between local and remote servers.
 
-* build an upload task
-* build a download task
-* Implement a hook system to allow custom tasks to hook into the deployment and rollback flow, via a reployfile.
+For a release schedule, see the [Milestones](https://github.com/Toddses/wpkit/milestones).
 
-#### v0.3.0
-
-* Add an npm style init with prompts for building the reploy.json file.
-
-#### v0.4.0
-
-* Add slack integration.
-
-#### v0.5.0
-
-* Revisit the logging system and implement a robust application-wide logging system.
-* Allow custom tasks to hook into the logging system.
+Any and all feature requests are [welcome](https://github.com/Toddses/wpkit/issues).
 
 ## License
 

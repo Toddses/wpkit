@@ -1,26 +1,26 @@
 var fs       = require('fs'),
 	Deployer = require('./lib/deployer');
 
-function Reploy() {
+function WPToolkit() {
 	// don't do nothing right now
 };
 
 // setup, prepare for launch
-Reploy.prototype.init = function (templateDir, logger) {
+WPToolkit.prototype.init = function (templateDir, logger) {
 
-	// copy the reploy.json template file to the cwd
+	// copy the deployment.json template file to the cwd
 	console.log(templateDir);
-	fs.readFile(templateDir + '/reploy.json.tmpl', function (err, data) {
-		if (err) logger.error('unable to locate reploy.json template');
+	fs.readFile(templateDir + '/deployment.json.tmpl', function (err, data) {
+		if (err) logger.error('unable to locate deployment.json template');
 		else {
-			fs.writeFile('./reploy.json', data, { flag: 'wx' }, function (err) {
+			fs.writeFile('./deployment.json', data, { flag: 'wx' }, function (err) {
 				if (err) {
 					if (err.code === 'EEXIST')
-						logger.error('reploy.json already exists!');
+						logger.error('deployment.json already exists!');
 					else
 						logger.error(err);
 				} else
-					logger.log('created reploy.json')
+					logger.log('created deployment.json')
 			});
 		}
 	});
@@ -28,14 +28,14 @@ Reploy.prototype.init = function (templateDir, logger) {
 };
 
 // instantiate the deployer
-Reploy.prototype.setStage = function (stage, logger) {
+WPToolkit.prototype.setStage = function (stage, logger) {
 	this._deployer = new Deployer(stage, logger);
 };
 
 // execute the deploy task
-Reploy.prototype.deploy = function () {
+WPToolkit.prototype.deploy = function () {
 	this._deployer.deploy();
 };
 
-var inst = new Reploy();
+var inst = new WPToolkit();
 module.exports = inst;
