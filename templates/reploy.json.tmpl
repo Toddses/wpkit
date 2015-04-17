@@ -1,0 +1,35 @@
+/*
+
+reploy JSON deployment template
+
+author: Todd Miller <todd@rainydaymedia.net>
+URL: https://github.com/Toddses/reploy
+
+This is your JSON deployment file! It contains all the information for each stage you intend to deploy to. Its neat.
+
+To add more stages, simple copy/paste the following and add it to the object, changing the data as needed.
+All of the fields are required.
+
+You can, however, leave linkedFiles and linkedDirs as an empty array if you don't like to symlink things.
+
+"stage_name": {
+	"host": "xxx.xxx.xxx.xxx",
+	"username": "you",
+	"path": "/path/to/your/project",
+	"branch": "master"
+}
+
+*/
+
+{
+	"repository": "git@github.com:user/example.git",
+	"keepReleases": 5,
+	"linkedDirs": [],
+	"linkedFiles": [],
+	"staging": {
+		"host": "xxx.xxx.xxx.xxx",
+		"username": "",
+		"path": "/path/to/your/project",
+		"branch": ""
+	}
+}

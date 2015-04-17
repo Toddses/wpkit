@@ -1,0 +1,45 @@
+{
+  "name": "reploy",
+  "version": "0.0.2",
+  "description": "Sophisticated release deployments in multi-server environments over SSH",
+  "main": "index.js",
+  "bin": {
+    "reploy": "./bin/reploy.js"
+  },
+  "files": [
+    "index.js",
+    "bin",
+    "lib",
+    "templates"
+  ],
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git@github.com:Toddses/reploy.git"
+  },
+  "keywords": [
+    "node",
+    "deploy",
+    "deployment",
+    "ssh",
+    "git",
+    "releases"
+  ],
+  "author": "Todd Miller <todd@rainydaymedia.net>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/Toddses/reploy/issues"
+  },
+  "homepage": "https://github.com/Toddses/reploy",
+  "dependencies": {
+    "async": "^0.9.0",
+    "chalk": "^0.5.1",
+    "interpret": "^0.4.3",
+    "liftoff": "^2.0.1",
+    "minimist": "^1.1.0",
+    "node-json-minify": "^0.1.3-a",
+    "ssh2": "^0.4.3"
+  }
+}
