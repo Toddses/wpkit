@@ -9,18 +9,17 @@ function WPToolkit() {
 WPToolkit.prototype.init = function (templateDir, logger) {
 
 	// copy the deployment.json template file to the cwd
-	console.log(templateDir);
-	fs.readFile(templateDir + '/deployment.json.tmpl', function (err, data) {
-		if (err) logger.error('unable to locate deployment.json template');
+	fs.readFile(templateDir + '/wpkit.yml.tmpl', function (err, data) {
+		if (err) logger.error('unable to locate wpkit.yml template');
 		else {
-			fs.writeFile('./deployment.json', data, { flag: 'wx' }, function (err) {
+			fs.writeFile('./wpkit.yml', data, { flag: 'wx' }, function (err) {
 				if (err) {
 					if (err.code === 'EEXIST')
-						logger.error('deployment.json already exists!');
+						logger.error('wpkit.yml already exists!');
 					else
 						logger.error(err);
 				} else
-					logger.log('created deployment.json')
+					logger.log('created wpkit.yml')
 			});
 		}
 	});
@@ -28,8 +27,8 @@ WPToolkit.prototype.init = function (templateDir, logger) {
 };
 
 // instantiate the deployer
-WPToolkit.prototype.setStage = function (stage, logger) {
-	this._deployer = new Deployer(stage, logger);
+WPToolkit.prototype.setStage = function (stage, logger, config) {
+	this._deployer = new Deployer(stage, logger, config);
 };
 
 // execute the deploy task
