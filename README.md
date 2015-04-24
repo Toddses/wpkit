@@ -1,12 +1,12 @@
-### wpkit
+# wpkit
 
-Sophisticated command line toolkit for managing and deploying WordPress installations over SSH in multi-server environments.
+Opinionated command line toolkit for managing and deploying WordPress installations over SSH in multi-server environments.
 
 Add any issues or feature requests to the [GitHub issues](https://github.com/Toddses/wpkit/issues)!
 
 ## Installation
 
-Install it with NPM. So cool!
+Install it with [NPM](https://www.npmjs.com/).
 
 Install globally:
 
@@ -17,13 +17,9 @@ In your project's directory, run the initializer:
     $ cd /path/to/your/project
 	$ wpkit init
 
-Edit the `deployment.json` file with your various settings and stages.
+Edit the `wpkit.yml` configuration file with your various settings and stages.
 
-Deploy!
-
-	$ wpkit deploy stage
-
-Where `stage` is the stage you'd like to deploy to.
+[Set up your ssh keys](https://help.github.com/articles/generating-ssh-keys/) and install on your remote server(s).
 
 ## Options
 
@@ -35,8 +31,8 @@ Verbose logging.
 
 Deploy your project with git over SSH. Set
 
-```json
-"repository": "git@github.com:user/example.git"
+```yaml
+repo: git@github.com:user/example.git
 ```
 
 to your git repository. You must enable agent forwarding. One way to handle this is in `~/.ssh/config`
@@ -47,28 +43,28 @@ Host 12.34.56.789
     AgentForward yes
 ```
 
-On Linux machines, agent forwarding is usually enabled by default. On a Mac, you may have to enable it for each server you intend to deploy to.
+**wpkit** creates a release structure that keeps in mind there are some WordPress files you don't want in your repo that are the same across all releases. Each stage in the `wpkit.yml` manifest will have the following structure:
 
-wpkit creates a release structure that keeps important and shared files out of your public facing directories. Each stage in the `deployment.json` manifest will have the following structure:
-
-```json
-"stage_name": {
-    "host": "xxx.xxx.xxx.xxx",
-    "username": "you",
-    "privatePath": "/path/to/your/private/project",
-    "publicPath": "/path/to/your/public/project",
-    "branch": "master"
-}
+```yaml
+staging:
+  host: xxx.xxx.xxx.xxx
+  username: user
+  branch: staging
+  publicPath: /path/to/project/public
+  privatePath: /path/to/project
 ```
 
-`/path/to/your/private/project` is not a public facing directory, while `/path/to/your/public/project` is the public facing website.
+`privatePath` is not a public facing directory, while `publicPath` is the public facing website. This allows you to define symlinks to directories and files, keeping important and shared files out of your public facing website and safely tucked away on your server.
 
-```json
-"linkedDirs": ["wp-content/uploads"],
-"linkedFiles": ["wp-config.php", ".htaccess"]
+```yaml
+linkedDirs:
+  - content/uploads
+linkedFiles:
+  - wp-config.php
+  - .htaccess
 ```
 
-The above is a basic WordPress symlink structure. These linkedFiles will live in your `privatePath` under `/shared`, and will not be directly accessible by your users.
+The above is a basic WordPress symlink structure. These files and directories will live in your `privatePath` under `/shared`.
 
 `wp-config.php` and `.htaccess` are nice to symlink because they will be the same for each release. So you can have these unchanged files that don't live in your repo, but the public site will still have access to them.
 
@@ -101,11 +97,11 @@ The above is a basic WordPress symlink structure. These linkedFiles will live in
 
 ## Roadmap
 
-This toolkit is in active development. I intend to develop it into a full-stack WordPress management tool.
+This toolkit is in active development. I intend to develop it into a full-stack WordPress management tool, from scaffolding to deployment.
 
 Intended future releases will include the following functionality.
 
-* Scaffolding a new WordPress site with [YeoPress](https://github.com/wesleytodd/YeoPress).
+* Scaffolding a new WordPress site.
 * Plugin stack installation. Define a set of common plugins to install and pull them all into your project with one command.
 * Database pushing and pulling for quick transfer of MySQL databases between local and remote servers. Will automatically update URLs in the data.
 * Uploads pushing and pulling for quick transfers of the WordPress uploads data between local and remote servers.
