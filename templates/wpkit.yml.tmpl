@@ -1,0 +1,27 @@
+# wpkit config template
+# author: Todd Miller <todd@rainydaymedia.net>
+# version 1.0.0
+#
+# This is your YAML configuration template.
+# You must at least define your git repository.
+# Everything else is optional.
+# To Deploy, define the details for each environment. Copy/Paste
+# the below example to create additional environments.
+#
+# branch is the git branch to use for the environment.
+# publicPath is the absolute path to the public facing directory on the server.
+# privatePath is an absolute path to a non-public facing directory.
+
+---
+repo: git@github.com:Username/example.git
+linkedDirs:
+  - content/uploads
+linkedFiles:
+  - wp-config.php
+  - .htaccess
+staging:
+  host: xxx.xxx.xxx.xxx
+  username: user
+  branch: staging
+  publicPath: /path/to/project/public
+  privatePath: /path/to/project
