@@ -5,16 +5,21 @@ var fs         = require('fs'),
 	chalk      = require('chalk'),
 	argv       = require('minimist')(process.argv.slice(2)),
     Configubot = require('../lib/configubot'),
+    Database   = require('../lib/database'),
 	Deployer   = require('../lib/deployer'),
 	Logger     = require('../lib/logger');
 
 // setup
-var cliPackage  = require('../package');
-var versionFlag = argv.v || argv.version;
-var tasks       = argv._;
-var task        = tasks[0];
-var stage       = tasks[1];
-var logLevel    = 'success';
+var cliPackage  = require('../package'),
+    versionFlag = argv.v || argv.version,
+    cmds        = argv._,
+    tasks       = cmds[0].split(':'),
+    task        = tasks[0],
+    subtask     = tasks[1],
+    stage       = cmds[1],
+    logLevel    = 'success',
+    templateDir = __dirname + '/../templates',
+    config;
 
 if (argv.verbose) {
 	logLevel = 'verbose';
@@ -23,33 +28,61 @@ if (argv.verbose) {
 var logger = new Logger({ level: logLevel });
 
 // do it!
-//loadConfig();
 handleArguments();
 
-// the actual logic
-function handleArguments() {
+function handleArguments(cb) {
 	if (versionFlag) {
 		logger.log('CLI version ' + cliPackage.version);
 		process.exit(0);
 	}
 
-	var wpToolkitInst = require('../index.js'),
-		templateDir = __dirname + '/../templates';
-
 	process.nextTick(function () {
 		if (task === 'init') {
-			wpToolkitInst.init(templateDir, logger);
-		} else {
-            var config = new Configubot(function (err) {
-                if (err) {
-                    logger.error(err.message);
-                    process.exit(0);
+            copyConfigTemplate();
+            process.exit(0);
+
+		} else if (task === 'deploy') {
+            config = new Configubot('./wpkit.json');
+            config.prime([
+                'repo', stage+'.host', stage+'.username', stage+'.privatePath',
+                stage+'.publicPath', stage+'.branch'
+                ],
+                function () {
+                    var deployer = new Deployer(config, stage, logger);
+                    deployer.deploy();
                 }
-            });
-			wpToolkitInst.setStage(stage, logger, config);
-			//execute the deployment task
-			logger.log('deploy to ' + stage);
-            wpToolkitInst.deploy();
-		}
+            );
+
+		} else if (task === 'db') {
+            config = new Configubot('./wpkit.json');
+            config.prime([
+                'local.url', 'local.dbName', 'local.dbUser', 'local.dbPass',
+                stage+'.host', stage+'.username', stage+'.url',
+                stage+'.privatePath', stage+'.dbName', stage+'.dbUser', stage+'.dbPass'
+                ],
+                function () {
+                    var db = new Database(config, stage, logger);
+                    db.transfer(subtask);
+                }
+            );
+        }
 	});
+}
+
+function copyConfigTemplate () {
+    var tmplFile = templateDir + '/wpkit.json.tmpl',
+        destFile = './wpkit.json';
+
+    if (fs.existsSync(destFile)) {
+        logger.error(destFile + ' already exists here!');
+
+    } else {
+        if (fs.existsSync(tmplFile)) {
+            var content = fs.readFileSync(tmplFile, {encoding: 'utf8'});
+            fs.writeFileSync(destFile, content);
+
+        } else {
+            logger.error('Unable to locate template file.');
+        }
+    }
 }
