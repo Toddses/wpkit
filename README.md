@@ -10,58 +10,99 @@ Install it with [NPM](https://www.npmjs.com/).
 
 Install globally:
 
-	$ npm install -g wpkit
-
-In your project's directory, run the initializer:
-
-    $ cd /path/to/your/project
-	$ wpkit init
-
-Edit the `wpkit.yml` configuration file with your various settings and stages.
-
-[Set up your ssh keys](https://help.github.com/articles/generating-ssh-keys/) and install on your remote server(s).
-
-## Options
-
-Verbose logging.
-
-	$ wpkit deploy stage --verbose
-
-## Deployment
-
-Deploy your project with git over SSH. Set
-
-```yaml
-repo: git@github.com:user/example.git
+```sh
+$ npm install -g wpkit
 ```
 
-to your git repository. You must enable agent forwarding. One way to handle this is in `~/.ssh/config`
+## Quick Start
+
+[Set up your ssh keys](https://help.github.com/articles/generating-ssh-keys/) and install on your remote server(s). 
+
+Enable Agent Forwarding for each server. One way to handle this is in your `~/.ssh/config` file:
 
 ```
-Host 12.34.56.789
-    User you
+Host 123.456.789.012
+    User deployerbot
     AgentForward yes
 ```
 
-**wpkit** creates a release structure that keeps in mind there are some WordPress files you don't want in your repo that are the same across all releases. Each stage in the `wpkit.yml` manifest will have the following structure:
+Authorize each server to access your git account(s). For instance, log into the server with your key, and execute
 
-```yaml
-staging:
-  host: xxx.xxx.xxx.xxx
-  username: user
-  branch: staging
-  publicPath: /path/to/project/public
-  privatePath: /path/to/project
+```sh
+$ ssh -T git@github.com
 ```
+
+You'll be prompted to add github.com to your list of known hosts. This will give the server access to your github account, using your ssh pubkey.
+
+In your project's directory, run the initializer:
+
+```sh
+$ cd /path/to/your/project
+$ wpkit init
+```
+
+Fire away
+
+```sh
+$ wpkit deploy production
+>> repo required: git@github.com:Toddses/example.git
+>> host in production required: 123.456.789.012
+>> username in production required: deployerbot
+>> privatePath in production required: /var/www/project
+>> publicPath in production required: /var/www/public/project
+>> branch in production required: master
+>> Would you like to save this config? (yes|no) y
+>> Connected to 123.456.789.012
+>> Check stage complete
+>> Repo updated
+>> New release created
+>> Symlinked directories
+>> Symlinked files
+Success: Deployment complete!
+```
+	
+Now future deployments to `production` will no longer require the prompt session.
+
+If you're managing deployments, but not doing a lot of the developing or management of the repos, there is no need to host the git repo in your local environment. You could do something like
+
+```sh
+$ mkdir -p ~/deployments/project
+$ cd ~/deployments/project
+$ wpkit init
+$ wpkit deploy production
+...
+```
+
+Keeping a subdirectory for each project you're managing.
+
+# Tasks
+
+## Deployment
+
+Deploy your project with git over SSH. There is one required setting in `wpkit.json`, and you must also have at least one stage defined.
+
+```json
+{
+  "repo": "git@github.com:Username/repository.git",
+  "stage_name": {
+    "host": "xxx.xxx.xxx.xxx",
+    "username": "user",
+    "branch": "branch_name",
+    "publicPath": "/absolute/path/to/project/public",
+    "privatePath": "absolute/path/to/project"
+  }
+}
+```
+
+Multiple stages can be defined, by copying the structure defined above and changing the details.
+
+**wpkit** creates a release structure that keeps in mind there are some WordPress files you don't want in your repo that are the same across all releases.
 
 `privatePath` is not a public facing directory, while `publicPath` is the public facing website. This allows you to define symlinks to directories and files, keeping important and shared files out of your public facing website and safely tucked away on your server.
 
-```yaml
-linkedDirs:
-  - content/uploads
-linkedFiles:
-  - wp-config.php
-  - .htaccess
+```json
+"linked_dirs": [ "wp-content/uploads" ],
+"linked_files": [ "wp-config.php", ".htaccess" ]
 ```
 
 The above is a basic WordPress symlink structure. These files and directories will live in your `privatePath` under `/shared`.
@@ -70,30 +111,75 @@ The above is a basic WordPress symlink structure. These files and directories wi
 
 `/wp-content/uploads` is nice to symlink as well. You won't need to copy over your site's uploads for each release, or store them in your repo. They will just symlink to the uploads in `/shared` and you're golden!
 
-## Deployment Structure
+Linking files and dirs are optional settings, and as such are not part of the prompt session when starting with an empty `wpkit.json` file.
+
+### Deployment Structure
 
 ```
-/private/path/root
+/absolute/path/to/project
 ├─ repo
-│  └─ <VCS data>
+│  └─ <git data>
 ├─ shared
 │  ├─ <symlinked files>
 │  └─ <symlinked dirs>
 └─ deployments.log
 
-/public/path/root
+/absolute/path/to/project/public
 ├─ REVISION
 └─ *
 ```
 
 #### Private Path
-* **./repo/** Contains the bare repo.
+* **./repo/** Contains the bare git repo.
 * **./shared/** Contains shared files/directories to be symlinked within each release.
-* **./deployments.log** Log file containing data on each deployment.
+* **./deployments.log** Log file containing data on each task.
 
 #### Public Path
 * **./REVISION** Contains the revision number for this release.
 * **./*** Project files.
+
+## Database
+
+Export/Import mysql databases over SSH with automatic URL replacement.
+
+```sh
+$ wpkit db:push production
+EXAMPLE OUTPUT
+```
+
+`push` exports the local mysql database and imports to the remote database. `pull` does the opposite, exporting the remote database and importing it locally. Both tasks automatically replace the URL with the correct environment URL. Required `wpkit.json` settings:
+
+```json
+{
+  "local": {
+    "url": "http://example.dev",
+    "dbName": "local_database",
+    "dbUser": "local_dbuser",
+    "dbPass": "local_dbpass"
+  },
+  "stage_name": {
+    "host": "xxx.xxx.xxx.xxx",
+    "username": "user",
+    "url": "http://website.com",
+    "privatePath": "/absolute/path/to/project",
+    "dbName": "stage_database",
+    "dbUser": "stage_dbuser",
+    "dbPass": "stage_dbpass"
+  }
+}
+```
+
+Both tasks will store the exported `.sql` file under the remote environment's `privatePath/shared/sqldumps` and will be timestamped. This is effectively a snapshot of the latest data in the remote environment at the time of export. Likely you won't be pushing or pulling the database often, but keep in mind those backups are being stored.
+
+**Note** Both these tasks will _overwrite_ the existing database in the importing environment. So take that into account before you pull the trigger.
+
+## Command Line Options
+
+Verbose logging. Gives you a lot more information on what's happening.
+
+```sh
+$ wpkit deploy stage --verbose
+```
 
 ## Roadmap
 
@@ -103,8 +189,8 @@ Intended future releases will include the following functionality.
 
 * Scaffolding a new WordPress site.
 * Plugin stack installation. Define a set of common plugins to install and pull them all into your project with one command.
-* Database pushing and pulling for quick transfer of MySQL databases between local and remote servers. Will automatically update URLs in the data.
 * Uploads pushing and pulling for quick transfers of the WordPress uploads data between local and remote servers.
+* Setting up the remote environment with the `wp-config.php` settings and `.htaccess` settings for pretty permalinks and some security. Should allow for root URL installation, or subdirectory installations.
 
 For a release schedule, see the [Milestones](https://github.com/Toddses/wpkit/milestones).
 
