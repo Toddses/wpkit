@@ -63,7 +63,7 @@ Success: Deployment complete!
 	
 Now future deployments to `production` will no longer require the prompt session.
 
-If you're managing deployments, but not doing a lot of the developing or management of the repos, there is no need to host the git repo in your local environment. You could do something like
+If you're managing deployments, but not doing a lot of the developing or management of the repos, there is no need to keep a copy of the repo in your local environment. You could do something like
 
 ```sh
 $ mkdir -p ~/deployments/project
@@ -122,6 +122,8 @@ Linking files and dirs are optional settings, and as such are not part of the pr
 ├─ shared
 │  ├─ <symlinked files>
 │  └─ <symlinked dirs>
+├─ sqldumps
+│  └─ <sql exports>
 └─ deployments.log
 
 /absolute/path/to/project/public
@@ -132,6 +134,7 @@ Linking files and dirs are optional settings, and as such are not part of the pr
 #### Private Path
 * **./repo/** Contains the bare git repo.
 * **./shared/** Contains shared files/directories to be symlinked within each release.
+* **./sqldumps/** Contains a backup of all the SQL exports for the project.
 * **./deployments.log** Log file containing data on each task.
 
 #### Public Path
@@ -144,9 +147,25 @@ Export/Import mysql databases over SSH with automatic URL replacement.
 
 ```sh
 $ wpkit db:push production
-EXAMPLE OUTPUT
+>> url in local required: http://example.dev
+>> dbName in local required: local_database
+>> dbUser in local required: local_dbuser
+>> dbPass in local required: local_dbpass
+>> url in production required: http://website.dev
+>> dbName in production required: production_database
+>> dbUser in production required: production_dbuser
+>> dbPass in production required: production_dbpass
+>> Would you like to save this config? (yes|no) y
+>> Connected to 123.456.789.012
+>> Exporting Database
+>> Transferring SQL file
+>> Importing Database
+>> Writing log and tidying up
+Success: Transfer complete!
 ```
 
+**Note** In order to import the sql file, the database must already exist in the mysql server you're importing to.
+ 
 `push` exports the local mysql database and imports to the remote database. `pull` does the opposite, exporting the remote database and importing it locally. Both tasks automatically replace the URL with the correct environment URL. Required `wpkit.json` settings:
 
 ```json
