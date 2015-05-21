@@ -4,13 +4,14 @@
 var fs         = require('fs'),
 	chalk      = require('chalk'),
 	argv       = require('minimist')(process.argv.slice(2)),
+    cli        = require('cli').enable('version').setApp(__dirname+'/../package.json'),
     Configubot = require('../lib/configubot'),
     Database   = require('../lib/database'),
 	Deployer   = require('../lib/deployer'),
 	Logger     = require('../lib/logger');
 
 // setup
-var cliPackage  = require('../package'),
+/*var cliPackage  = require('../package'),
     versionFlag = argv.v || argv.version,
     cmds        = argv._,
     tasks       = cmds[0].split(':'),
@@ -19,7 +20,9 @@ var cliPackage  = require('../package'),
     stage       = cmds[1],
     logLevel    = 'success',
     templateDir = __dirname + '/../templates',
-    config;
+    config;*/
+
+var logLevel = 'success';
 
 if (argv.verbose) {
 	logLevel = 'verbose';
@@ -27,10 +30,22 @@ if (argv.verbose) {
 
 var logger = new Logger({ level: logLevel });
 
-// do it!
-handleArguments();
+cli.parse({
+    verbose: ['', 'Enables verbose logging']
+}, {
+    deploy: ['Deploy a branch to the given environment'],
+    database: ['Transfer a database to or from a remote environment']
+});
 
-function handleArguments(cb) {
+logger.log(cli.command);
+logger.log(cli.args);
+logger.log(cli.argc);
+logger.log(cli.options);
+
+// do it!
+//handleArguments();
+
+/*function handleArguments(cb) {
 	if (versionFlag) {
 		logger.log('CLI version ' + cliPackage.version);
 		process.exit(0);
@@ -67,7 +82,7 @@ function handleArguments(cb) {
             );
         }
 	});
-}
+}*/
 
 function copyConfigTemplate () {
     var tmplFile = templateDir + '/wpkit.json.tmpl',
