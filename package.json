@@ -1,6 +1,6 @@
 {
   "name": "wpkit",
-  "version": "1.1.1",
+  "version": "1.2.0",
   "description": "Command line toolkit for managing and deploying WordPress installations over SSH in multi-server environments.",
   "preferGlobal": true,
   "main": "bin/wpkit.js",
@@ -37,7 +37,7 @@
   "dependencies": {
     "async": "^0.9.0",
     "chalk": "^0.5.1",
-    "minimist": "^1.1.0",
+    "cli": "^0.6.6",
     "revalidator": "^0.3.1",
     "ssh2": "^0.4.6"
   }
