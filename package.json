@@ -1,6 +1,6 @@
 {
   "name": "wpkit",
-  "version": "1.1.1",
+  "version": "1.2.0",
   "description": "Command line toolkit for managing and deploying WordPress installations over SSH in multi-server environments.",
   "main": "bin/wpkit.js",
   "bin": {
